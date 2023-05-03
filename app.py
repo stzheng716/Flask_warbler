@@ -49,6 +49,7 @@ def do_logout():
 
     if CURR_USER_KEY in session:
         del session[CURR_USER_KEY]
+        flash("Logged out")
 
 
 @app.route('/signup', methods=["GET", "POST"])
@@ -118,15 +119,11 @@ def logout():
     form = g.csrf_form
 
     if form.validate_on_submit():
-        flash("Logged out")
 
         if g.user.id == session[CURR_USER_KEY]:
             do_logout()
-    
-    return redirect("/")
-    # IMPLEMENT THIS AND FIX BUG
-    # DO NOT CHANGE METHOD ON ROUTE
 
+    return redirect("/")
 
 ##############################################################################
 # General user routes:
@@ -196,7 +193,7 @@ def start_following(follow_id):
     Redirect to following page for the current for the current user.
     """
 
-    if not g.user:
+    if not g.user or g.user.id != session[CURR_USER_KEY]:
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
@@ -214,7 +211,7 @@ def stop_following(follow_id):
     Redirect to following page for the current for the current user.
     """
 
-    if not g.user:
+    if not g.user or g.user.id != session[CURR_USER_KEY]:
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
@@ -245,7 +242,7 @@ def delete_user():
     Redirect to signup page.
     """
 
-    if not g.user:
+    if not g.user or g.user.id != session[CURR_USER_KEY]:
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
@@ -267,7 +264,7 @@ def add_message():
     Show form if GET. If valid, update message and redirect to user page.
     """
 
-    if not g.user:
+    if not g.user or g.user.id != session[CURR_USER_KEY]:
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
@@ -303,7 +300,7 @@ def delete_message(message_id):
     Redirect to user page on success.
     """
 
-    if not g.user:
+    if not g.user or g.user.id != session[CURR_USER_KEY]:
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
