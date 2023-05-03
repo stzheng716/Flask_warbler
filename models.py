@@ -89,6 +89,9 @@ class User(db.Model):
 
     messages = db.relationship('Message', backref="user")
 
+
+    example1 = userobject.followers
+
     followers = db.relationship(
         "User",
         secondary="follows",
