@@ -32,7 +32,7 @@ class UserAddForm(FlaskForm):
         validators=[Optional(), URL(), Length(max=255)]
     )
 
-class UserEditorm(FlaskForm):
+class UserEditform(FlaskForm):
     """Form for editing users."""
 
     username = StringField(
@@ -50,7 +50,7 @@ class UserEditorm(FlaskForm):
         validators=[Optional(), URL(), Length(max=255)]
     )
 
-    header_image__url = StringField(
+    header_image_url = StringField(
         '(Optional) Header image URL',
         validators=[Optional(), URL(), Length(max=255)]
     )
