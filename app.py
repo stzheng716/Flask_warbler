@@ -33,10 +33,14 @@ def add_user_to_g():
 
     if CURR_USER_KEY in session:
         g.user = User.query.get(session[CURR_USER_KEY])
-        g.csrf_form = CSRFProtectForm()
     else:
         g.user = None
 
+@app.before_request
+def provide_CSRF_protection():
+    """Adding CSRF protection to Flask global object."""
+
+    g.csrf_form = CSRFProtectForm()
 
 def do_login(user):
     """Log in user."""
@@ -118,12 +122,14 @@ def logout():
 
     form = g.csrf_form
 
-    if form.validate_on_submit():
+    if not g.user or not form.validate_on_submit():
 
-        if g.user.id == session[CURR_USER_KEY]:
-            do_logout()
+        flash("You were not logged in")
+        return redirect("/")     
+    
+    do_logout()
+    return redirect("/login")
 
-    return redirect("/")
 
 ##############################################################################
 # General user routes:
@@ -226,7 +232,7 @@ def stop_following(follow_id):
 def profile():
     """Update profile for current user."""
 
-    if not g.user or g.user.id != session[CURR_USER_KEY]:
+    if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
@@ -344,7 +350,7 @@ def homepage():
 
 
     if g.user:
-        list_of_following_id = [user.id for user in g.user.following]
+        list_of_following_id = [user.id for user in g.user.following] + [g.user.id]
         
         messages = (Message
                     .query

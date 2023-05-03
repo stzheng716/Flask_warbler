@@ -182,6 +182,9 @@ class Message(db.Model):
         nullable=False,
     )
 
+    # this is another way to write the db.relationsip if we didn't write it in the User class
+    # user = db.relationship('User', backref="messages")
+
 
 def connect_db(app):
     """Connect this database to provided Flask app.
