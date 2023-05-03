@@ -115,7 +115,7 @@ class User(db.Model):
             password=hashed_pwd,
             image_url=image_url,
         )
-
+        #Maybe move this if we need to modidy the created instance before adding to DB
         db.session.add(user)
         return user
 
