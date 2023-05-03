@@ -148,11 +148,11 @@ def list_users():
 @app.get('/users/<int:user_id>')
 def show_user(user_id):
     """Show user profile."""
-
+    
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
-
+    breakpoint()
     user = User.query.get_or_404(user_id)
 
     return render_template('users/show.html', user=user)
