@@ -229,7 +229,13 @@ def stop_following(follow_id):
 def profile():
     """Update profile for current user."""
 
+    form = 
+
     # IMPLEMENT THIS
+    if form.validate_on_submit():
+
+        return render_template("edit.html", form=form)
+
 
 
 @app.post('/users/delete')
