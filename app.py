@@ -364,6 +364,22 @@ def homepage():
     else:
         return render_template('home-anon.html')
 
+##############################################################################
+# like messages
+
+@app.post("/message/like/<int:message_id>/")
+def like_message(message_id):
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    message = Message.query.get_or_404(message_id)
+    g.user.liked_messages.append(message)
+    db.session.commit()
+
+    return redirect(f"/messages/{message_id}")
+
 
 @app.after_request
 def add_header(response):
@@ -372,3 +388,4 @@ def add_header(response):
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
     response.cache_control.no_store = True
     return response
+
