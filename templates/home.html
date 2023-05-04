@@ -60,9 +60,12 @@
             </form>
             {% else %}
               <form method="POST" action="/message/like/{{msg.id}}/" style="display: inline">
+                {{ g.csrf_form.hidden_tag() }}
+
+                <!-- TODO: Add all the csrf protection forms -->
                 <a><button class="btn bi bi-star"></button></a>
               </form>
-            {% endif %}              
+            {% endif %}
             {% endif %}
           </span>
           <p>{{ msg.text }}</p>

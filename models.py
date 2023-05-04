@@ -25,13 +25,13 @@ class Follow(db.Model):
 
     user_being_followed_id = db.Column(
         db.Integer,
-        db.ForeignKey('users.id', ondelete="cascade"),
+        db.ForeignKey('users.id', ondelete="CASCADE"),
         primary_key=True,
     )
 
     user_following_id = db.Column(
         db.Integer,
-        db.ForeignKey('users.id', ondelete="cascade"),
+        db.ForeignKey('users.id', ondelete="CASCADE"),
         primary_key=True,
     )
 
@@ -203,6 +203,7 @@ class Message(db.Model):
 
 
 class Like(db.Model):
+    """ A table to join users and messages"""
 
     __tablename__ = 'likes'
 
@@ -221,7 +222,6 @@ class Like(db.Model):
 
 def connect_db(app):
     """Connect this database to provided Flask app.
-
     You should call this in your Flask app.
     """
 

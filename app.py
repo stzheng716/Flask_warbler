@@ -16,7 +16,7 @@ app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 app.config['SQLALCHEMY_ECHO'] = False
-app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
+app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 toolbar = DebugToolbarExtension(app)
 
@@ -263,7 +263,6 @@ def profile():
 @app.post('/users/delete')
 def delete_user():
     """Delete user.
-
     Redirect to signup page.
     """
 
@@ -271,6 +270,7 @@ def delete_user():
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
+    #grab and delete all messages associated with current user
     do_logout()
 
     db.session.delete(g.user)
@@ -285,7 +285,6 @@ def delete_user():
 @app.route('/messages/new', methods=["GET", "POST"])
 def add_message():
     """Add a message:
-
     Show form if GET. If valid, update message and redirect to user page.
     """
 
@@ -343,11 +342,9 @@ def delete_message(message_id):
 @app.get('/')
 def homepage():
     """Show homepage:
-
     - anon users: no messages
     - logged in: 100 most recent messages of self & followed_users
     """
-
 
     if g.user:
         list_of_following_id = [user.id for user in g.user.following] + [g.user.id]
@@ -369,12 +366,14 @@ def homepage():
 
 @app.post("/message/like/<int:message_id>/")
 def like_message(message_id):
-
+    """Get current message based on message.id and append to liked_messages
+     depending on current user """
+    #TODO: form = g.csrf_form, then validate on submit
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
-
     message = Message.query.get_or_404(message_id)
+    #TODO: check if message is included in the g.user's messages, if so, redirect
     g.user.liked_messages.append(message)
     db.session.commit()
 
@@ -382,7 +381,9 @@ def like_message(message_id):
 
 @app.post("/message/unlike/<int:message_id>/")
 def unlike_message(message_id):
-
+    """Get current message based on message.id and remove from liked_messages
+     depending on current user """
+    #TODO: form = g.csrf_form, then validate on submit
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
@@ -396,13 +397,13 @@ def unlike_message(message_id):
 @app.get('/users/<int:user_id>/liked_messages')
 def show_liked_messages(user_id):
     """Show list of liked messages of this user."""
-
+    #TODO: form = g.csrf_form, then validate on submit
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
     user = User.query.get_or_404(user_id)
-    return render_template('users/followers.html', user=user)
+    return render_template('users/liked_messages.html', user=user)
 
 @app.after_request
 def add_header(response):
