@@ -159,7 +159,7 @@ class User(db.Model):
         found_user_list = [
             user for user in self.following if user == other_user]
         return len(found_user_list) == 1
-    
+
     def is_message_liked(self, displayed_message):
         """Is the displayed_message been liked?"""
 
@@ -168,7 +168,7 @@ class User(db.Model):
         ]
 
         return len(user_liked_list) == 1
-    
+
 
 
 class Message(db.Model):
@@ -208,13 +208,13 @@ class Like(db.Model):
 
     user_id = db.Column(
         db.Integer,
-        db.ForeignKey('users.id', ondelete="cascade"),
+        db.ForeignKey('users.id', ondelete="CASCADE"),
         primary_key=True,
     )
 
     message_id = db.Column(
         db.Integer,
-        db.ForeignKey('messages.id', ondelete="cascade"),
+        db.ForeignKey('messages.id', ondelete="CASCADE"),
         primary_key=True,
     )
 

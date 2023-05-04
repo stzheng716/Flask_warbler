@@ -378,7 +378,7 @@ def like_message(message_id):
     g.user.liked_messages.append(message)
     db.session.commit()
 
-    return redirect(f"/messages/{message_id}")
+    return redirect("/")
 
 
 @app.after_request
