@@ -19,10 +19,14 @@
           {% if g.user.id != user.id %}
             {% if g.user.is_message_liked(message)%}
             <form method="POST" action="/message/unlike/{{message.id}}/" style="display: inline">
+              <input type="hidden" name="url" value="{{ request.url }}" />
+              {{ g.csrf_form.hidden_tag() }}
               <a><button class="btn bi bi-star-fill"></button></a>
             </form>
             {% else %}
             <form method="POST" action="/message/like/{{message.id}}/" style="display: inline">
+              <input type="hidden" name="url" value="{{ request.url }}" />
+              {{ g.csrf_form.hidden_tag() }}
               <a><button class="btn bi bi-star"></button></a>
             </form>
             {% endif %}

@@ -199,15 +199,21 @@ def start_following(follow_id):
     Redirect to following page for the current for the current user.
     """
 
-    if not g.user:
+    form = g.csrf_form
+
+    if not g.user or not form.validate_on_submit():
+
         flash("Access unauthorized.", "danger")
         return redirect("/")
+
 
     followed_user = User.query.get_or_404(follow_id)
     g.user.following.append(followed_user)
     db.session.commit()
 
-    return redirect(f"/users/{g.user.id}/following")
+    return_url = request.form['url']
+
+    return redirect(f"{return_url}")
 
 
 @app.post('/users/stop-following/<int:follow_id>')
@@ -217,15 +223,21 @@ def stop_following(follow_id):
     Redirect to following page for the current for the current user.
     """
 
-    if not g.user:
+    form = g.csrf_form
+
+    if not g.user or not form.validate_on_submit():
+
         flash("Access unauthorized.", "danger")
         return redirect("/")
+
 
     followed_user = User.query.get_or_404(follow_id)
     g.user.following.remove(followed_user)
     db.session.commit()
 
-    return redirect(f"/users/{g.user.id}/following")
+    return_url = request.form['url']
+
+    return redirect(f"{return_url}")
 
 
 @app.route('/users/profile', methods=["GET", "POST"])
@@ -265,17 +277,19 @@ def delete_user():
     """Delete user.
     Redirect to signup page.
     """
+    form = g.csrf_form
 
-    if not g.user or g.user.id != session[CURR_USER_KEY]:
+    if not g.user or not form.validate_on_submit():
+
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-    #grab and delete all messages associated with current user
-    do_logout()
+    Message.query.filter(Message.user_id == g.user.id).delete()
 
     db.session.delete(g.user)
     db.session.commit()
 
+    do_logout()
     return redirect("/signup")
 
 
@@ -288,7 +302,10 @@ def add_message():
     Show form if GET. If valid, update message and redirect to user page.
     """
 
-    if not g.user or g.user.id != session[CURR_USER_KEY]:
+    form = g.csrf_form
+
+    if not g.user or not form.validate_on_submit():
+
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
@@ -324,9 +341,13 @@ def delete_message(message_id):
     Redirect to user page on success.
     """
 
-    if not g.user or g.user.id != session[CURR_USER_KEY]:
+    form = g.csrf_form
+
+    if not g.user or not form.validate_on_submit():
+
         flash("Access unauthorized.", "danger")
         return redirect("/")
+
 
     msg = Message.query.get_or_404(message_id)
     db.session.delete(msg)
@@ -368,23 +389,31 @@ def homepage():
 def like_message(message_id):
     """Get current message based on message.id and append to liked_messages
      depending on current user """
-    #TODO: form = g.csrf_form, then validate on submit
-    if not g.user:
+    
+    form = g.csrf_form
+
+    if not g.user or not form.validate_on_submit():
+
         flash("Access unauthorized.", "danger")
         return redirect("/")
+
     message = Message.query.get_or_404(message_id)
-    #TODO: check if message is included in the g.user's messages, if so, redirect
     g.user.liked_messages.append(message)
     db.session.commit()
 
-    return redirect("/")
+    return_url = request.form['url']
+
+    return redirect(f"{return_url}")
 
 @app.post("/message/unlike/<int:message_id>/")
 def unlike_message(message_id):
     """Get current message based on message.id and remove from liked_messages
      depending on current user """
-    #TODO: form = g.csrf_form, then validate on submit
-    if not g.user:
+
+    form = g.csrf_form
+
+    if not g.user or not form.validate_on_submit():
+
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
@@ -392,12 +421,14 @@ def unlike_message(message_id):
     g.user.liked_messages.remove(message)
     db.session.commit()
 
-    return redirect("/")
+    return_url = request.form['url']
+
+    return redirect(f"{return_url}")
 
 @app.get('/users/<int:user_id>/liked_messages')
 def show_liked_messages(user_id):
     """Show list of liked messages of this user."""
-    #TODO: form = g.csrf_form, then validate on submit
+
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
