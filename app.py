@@ -380,6 +380,29 @@ def like_message(message_id):
 
     return redirect("/")
 
+@app.post("/message/unlike/<int:message_id>/")
+def unlike_message(message_id):
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    message = Message.query.get_or_404(message_id)
+    g.user.liked_messages.remove(message)
+    db.session.commit()
+
+    return redirect("/")
+
+@app.get('/users/<int:user_id>/liked_messages')
+def show_liked_messages(user_id):
+    """Show list of liked messages of this user."""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    user = User.query.get_or_404(user_id)
+    return render_template('users/followers.html', user=user)
 
 @app.after_request
 def add_header(response):
