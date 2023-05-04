@@ -125,8 +125,8 @@ def logout():
     if not g.user or not form.validate_on_submit():
 
         flash("You were not logged in")
-        return redirect("/")     
-    
+        return redirect("/")
+
     do_logout()
     return redirect("/login")
 
@@ -199,7 +199,7 @@ def start_following(follow_id):
     Redirect to following page for the current for the current user.
     """
 
-    if not g.user or g.user.id != session[CURR_USER_KEY]:
+    if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
@@ -217,7 +217,7 @@ def stop_following(follow_id):
     Redirect to following page for the current for the current user.
     """
 
-    if not g.user or g.user.id != session[CURR_USER_KEY]:
+    if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
@@ -351,7 +351,7 @@ def homepage():
 
     if g.user:
         list_of_following_id = [user.id for user in g.user.following] + [g.user.id]
-        
+
         messages = (Message
                     .query
                     .order_by(Message.timestamp.desc())
