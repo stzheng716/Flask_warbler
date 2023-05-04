@@ -97,6 +97,12 @@ class User(db.Model):
         backref="following",
     )
 
+    liked_messages = db.relationship(
+        "Message",
+        secondary="likes",
+        backref="user_liked"
+    )
+
     def __repr__(self):
         return f"<User #{self.id}: {self.username}, {self.email}>"
 
@@ -153,6 +159,16 @@ class User(db.Model):
         found_user_list = [
             user for user in self.following if user == other_user]
         return len(found_user_list) == 1
+    
+    def is_message_liked(self, displayed_message):
+        """Is the displayed_message been liked?"""
+
+        user_liked_list = [
+            message for message in self.liked_messages if message == displayed_message
+        ]
+
+        return len(user_liked_list) == 1
+    
 
 
 class Message(db.Model):
@@ -184,6 +200,23 @@ class Message(db.Model):
 
     # this is another way to write the db.relationsip if we didn't write it in the User class
     # user = db.relationship('User', backref="messages")
+
+
+class Like(db.Model):
+
+    __tablename__ = 'likes'
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id', ondelete="cascade"),
+        primary_key=True,
+    )
+
+    message_id = db.Column(
+        db.Integer,
+        db.ForeignKey('messages.id', ondelete="cascade"),
+        primary_key=True,
+    )
 
 
 def connect_db(app):
