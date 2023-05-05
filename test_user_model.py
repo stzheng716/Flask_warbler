@@ -97,6 +97,7 @@ class UserModelTestCase(TestCase):
                 return "blah"
 
         # self.assertIsInstance(IntegrityError, )
+        # self.assertraise
             # self.assertEqual(db.session.commit(), IntegrityError)
             self.assertEqual(func1(), "blah")
 
