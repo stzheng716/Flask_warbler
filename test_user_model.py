@@ -87,19 +87,15 @@ class UserModelTestCase(TestCase):
         u1 = User.query.get(self.u1_id)
         self.assertEqual(u1.username, "u1")
 
-        #create a User with false inputs and test
-        def func1():
+        def make_integrity_error():
+            """ enter false user input and collect the resulting integrity error"""
             try:
                 u3 = User.signup("u1", "u1@email.com", "password", None)
-                # db.session.commit()
                 db.session.commit()
             except IntegrityError:
-                return "blah"
+                return "IntegrityError"
 
-        # self.assertIsInstance(IntegrityError, )
-        # self.assertraise
-            # self.assertEqual(db.session.commit(), IntegrityError)
-            self.assertEqual(func1(), "blah")
+        self.assertEqual(make_integrity_error(), "IntegrityError")
 
 
 
