@@ -38,12 +38,13 @@ class UserBaseViewTestCase(TestCase):
         self.u2_id = u2.id
 
         self.client = app.test_client()
-    
+
     def tearDown(self):
         db.session.rollback()
 
-    def test_login_and_view_follower_following(self):
-        
+    def test_logged_user_views_follower_following(self):
+        """test that a logged in user can view both followers and people
+        being followed"""
         with self.client as c:
             with c.session_transaction() as sess:
                 sess[CURR_USER_KEY] = self.u1_id
@@ -54,10 +55,47 @@ class UserBaseViewTestCase(TestCase):
         html = resp.get_data(as_text=True)
         self.assertIn("<!-- follower test block -->" ,html)
 
-        del sess[CURR_USER_KEY]
-
-        resp = c.get(f'/users/{self.u2_id}/followers', follow_redirects=True)
+        resp = c.get(f'/users/{self.u2_id}/following')
 
         self.assertEqual(resp.status_code, 200)
         html = resp.get_data(as_text=True)
-        self.assertIn("Access unauthorized." ,html)
+        self.assertIn("<!-- testing: following page -->" ,html)
+
+    def test_not_logged_user_views_follower_following(self):
+        """test that a non logged in user cannot view both followers and people
+        being followed"""
+        with self.client as c:
+
+            resp = c.get(f'/users/{self.u2_id}/followers', follow_redirects=True)
+            self.assertEqual(resp.status_code, 200)
+            html = resp.get_data(as_text=True)
+            self.assertIn("<!-- test: user not logged in -->" , html)
+
+            resp = c.get(f'/users/{self.u2_id}/following', follow_redirects=True)
+            self.assertEqual(resp.status_code, 200)
+            html = resp.get_data(as_text=True)
+            self.assertIn("<!-- test: user not logged in -->" , html)
+
+    def test_user_can_delete_or_add_msg(self):
+        """test that a logged in user can create or delete a message"""
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.u1_id
+
+            msg = Message(text="testing for message creation")
+            u1 = User.query.get(self.u1_id)
+            u1.messages.append(msg)
+
+            db.session.commit()
+
+            resp = c.post(f"/users/{g.user.id}", )
+
+            resp = c.post(
+                f"/users/{self.user_id}/posts/new",
+                data={
+                    "title": "new_title",
+                    "content": "new_content",
+
+
+
