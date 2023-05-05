@@ -106,7 +106,7 @@ class UserModelTestCase(TestCase):
         self.assertRaises(IntegrityError, db.session.commit)
 
     def test_user_authenticate(self):
-        """test user authenticate class method with correct creditentials 
+        """test user authenticate class method with correct creditentials
         and wrong creditentials"""
 
         u1 = User.query.get(self.u1_id)
@@ -123,10 +123,10 @@ class UserModelTestCase(TestCase):
         db.session.commit()
 
         self.assertEqual(u3.image_url, "https://icon-library.com/images/default-user-icon/" +
-    "default-user-icon-28.jpg")
+        "default-user-icon-28.jpg")
 
 
 
 
-    
+
 

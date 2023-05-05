@@ -9,6 +9,8 @@ import os
 from unittest import TestCase
 
 from models import db, User, Message, Follow
+from sqlalchemy.exc import IntegrityError
+
 
 # BEFORE we import our app, let's set an environmental variable
 # to use a different database for tests (we need to do this
@@ -29,10 +31,11 @@ db.create_all()
 
 class MessageModelTestCase(TestCase):
     def setUp(self):
+        User.query.delete()
         Message.query.delete()
 
-        m1 = Message.signup("u1", "u1@email.com", "password", None)
-        m2 = Message.signup("u2", "u2@email.com", "password", None)
+        u1 = User.signup("u1", "u1@email.com", "password", None)
+        u2 = User.signup("u2", "u2@email.com", "password", None)
 
         db.session.commit()
         self.u1_id = u1.id
@@ -43,9 +46,36 @@ class MessageModelTestCase(TestCase):
     def tearDown(self):
         db.session.rollback()
 
-    def test_user_model(self):
-        u1 = User.query.get(self.u1_id)
+    def test_message_creation(self):
+        """ create a message for a user and verify its creation"""
 
-        # User should have no messages & no followers
-        self.assertEqual(len(u1.messages), 0)
-        self.assertEqual(len(u1.followers), 0)
+        u1 = User.query.get(self.u1_id)
+        msg = Message(text="suh suh suhhh")
+        u1.messages.append(msg)
+
+        db.session.add(msg)
+        db.session.commit()
+
+        self.assertEqual(u1.messages[0], Message.query.get(1))
+        self.assertEqual(u1.messages[0].text, "suh suh suhhh")
+
+        #failing version
+        self.assertEqual(False, u1.messages[0].text == "sup")
+
+    def test_no_message_input:
+        """tests that a an empty string added as a message is not saved as a message"""
+
+        u1 = User.query.get(self.u1_id)
+        msg = Message(text="")
+        u1.messages.append(msg)
+
+        db.session.add(msg)
+        db.session.commit()
+
+        self.assertEqual(False, u1.messages[1].text == "sup")
+
+
+
+
+
+

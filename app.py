@@ -302,9 +302,7 @@ def add_message():
     Show form if GET. If valid, update message and redirect to user page.
     """
 
-    form = g.csrf_form
-
-    if not g.user or not form.validate_on_submit():
+    if not g.user:
 
         flash("Access unauthorized.", "danger")
         return redirect("/")
@@ -389,7 +387,7 @@ def homepage():
 def like_message(message_id):
     """Get current message based on message.id and append to liked_messages
      depending on current user """
-    
+
     form = g.csrf_form
 
     if not g.user or not form.validate_on_submit():
