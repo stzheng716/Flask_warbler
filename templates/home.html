@@ -56,13 +56,14 @@
             {% if g.user.id != msg.user_id %}
             {% if g.user.is_message_liked(msg)%}
             <form method="POST" action="/message/unlike/{{msg.id}}/" style="display: inline">
+              <input type="hidden" name="url" value="{{request.url}}" />
+              {{ g.csrf_form.hidden_tag() }}
               <a><button class="btn bi bi-star-fill"></button></a>
             </form>
             {% else %}
               <form method="POST" action="/message/like/{{msg.id}}/" style="display: inline">
+                <input type="hidden" name="url" value="{{request.url}}" />
                 {{ g.csrf_form.hidden_tag() }}
-
-                <!-- TODO: Add all the csrf protection forms -->
                 <a><button class="btn bi bi-star"></button></a>
               </form>
             {% endif %}
