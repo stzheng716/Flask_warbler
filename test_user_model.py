@@ -80,7 +80,7 @@ class UserModelTestCase(TestCase):
         self.assertEqual(follower.is_following(followed_user), True)
         self.assertEqual(followed_user.is_following(follower), False)
 
-    def test_User_signup(self):
+    def test_user_signup(self):
         """test that User.signup creates user when inputs are valid and doesnt
         when inputs are invalid"""
 
@@ -90,12 +90,43 @@ class UserModelTestCase(TestCase):
         def make_integrity_error():
             """ enter false user input and collect the resulting integrity error"""
             try:
-                u3 = User.signup("u1", "u1@email.com", "password", None)
+                User.signup("u1", "u1@email.com", "password", None)
                 db.session.commit()
             except IntegrityError:
                 return "IntegrityError"
 
         self.assertEqual(make_integrity_error(), "IntegrityError")
 
+    def test_user_signup_assertRaise(self):
+        """test that User.signup creates user when inputs are valid and doesnt
+        when inputs are invalid"""
 
+        User.signup("u1", "u1@email.com", "password", None)
+
+        self.assertRaises(IntegrityError, db.session.commit)
+
+    def test_user_authenticate(self):
+        """test user authenticate class method with correct creditentials 
+        and wrong creditentials"""
+
+        u1 = User.query.get(self.u1_id)
+
+        self.assertEqual(User.authenticate("u1", "password"), u1)
+        self.assertEqual(User.authenticate("u1", "blahblah"), False)
+        self.assertEqual(User.authenticate("wrongusername", "password"), False)
+
+    def test_not_valid_img_URL(self):
+        """test invalid img URL"""
+
+        u3 = User.signup("u3", "u3@email.com", "password", None)
+
+        db.session.commit()
+
+        self.assertEqual(u3.image_url, "https://icon-library.com/images/default-user-icon/" +
+    "default-user-icon-28.jpg")
+
+
+
+
+    
 
