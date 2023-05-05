@@ -51,3 +51,18 @@ class UserModelTestCase(TestCase):
         # User should have no messages & no followers
         self.assertEqual(len(u1.messages), 0)
         self.assertEqual(len(u1.followers), 0)
+
+    def test_u1_following_u2_true(self):
+        """test that is_following detects when user1 is following user2"""
+
+        followed_user = User.query.get_or_404(self.u2_id)
+        g.user.following.append(followed_user)
+        db.session.commit()
+
+
+
+    def test_u1_following_u2_false(self):
+
+    def test_u2_following_u1_true(self):
+
+    def test_u2_following_u1_true(self):
