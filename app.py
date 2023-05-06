@@ -98,6 +98,9 @@ def signup():
 def login():
     """Handle user login and redirect to homepage on success."""
 
+    if g.user:
+        return redirect("/")
+
     form = LoginForm()
 
     if form.validate_on_submit():
@@ -340,14 +343,14 @@ def delete_message(message_id):
     """
 
     form = g.csrf_form
+    msg = Message.query.get_or_404(message_id)
 
-    if not g.user or not form.validate_on_submit():
+    if not g.user or not form.validate_on_submit() or g.user.id != msg.user_id:
 
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
 
-    msg = Message.query.get_or_404(message_id)
     db.session.delete(msg)
     db.session.commit()
 
