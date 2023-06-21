@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 
-from flask import Flask, render_template, request, flash, redirect, session, g
+from flask import Flask, render_template, request, flash, redirect, session, g, abort
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
@@ -36,11 +36,13 @@ def add_user_to_g():
     else:
         g.user = None
 
+
 @app.before_request
 def provide_CSRF_protection():
     """Adding CSRF protection to Flask global object."""
 
     g.csrf_form = CSRFProtectForm()
+
 
 def do_login(user):
     """Log in user."""
@@ -98,9 +100,6 @@ def signup():
 def login():
     """Handle user login and redirect to homepage on success."""
 
-    if g.user:
-        return redirect("/")
-
     form = LoginForm()
 
     if form.validate_on_submit():
@@ -131,6 +130,8 @@ def logout():
         return redirect("/")
 
     do_logout()
+
+    flash("You have successfully logged out.", 'success')
     return redirect("/login")
 
 
@@ -209,7 +210,6 @@ def start_following(follow_id):
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-
     followed_user = User.query.get_or_404(follow_id)
     g.user.following.append(followed_user)
     db.session.commit()
@@ -233,7 +233,6 @@ def stop_following(follow_id):
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-
     followed_user = User.query.get_or_404(follow_id)
     g.user.following.remove(followed_user)
     db.session.commit()
@@ -251,7 +250,8 @@ def profile():
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-    form = UserEditform(obj=g.user)
+    user = g.user
+    form = UserEditform(obj=user)
 
     if form.validate_on_submit():
         result = g.user.authenticate(g.user.username, form.password.data)
@@ -267,12 +267,9 @@ def profile():
 
             return redirect(f'/users/{g.user.id}')
 
-        else:
-            flash("Please enter correct password to submit updates.", "danger")
-            return render_template("users/edit.html", form=form)
+        flash("Please enter correct password to submit updates.", "danger")
 
-    return render_template("users/edit.html", form=form)
-
+    return render_template("users/edit.html", form=form, user_id=user.id)
 
 
 @app.post('/users/delete')
@@ -350,7 +347,6 @@ def delete_message(message_id):
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-
     db.session.delete(msg)
     db.session.commit()
 
@@ -369,7 +365,8 @@ def homepage():
     """
 
     if g.user:
-        list_of_following_id = [user.id for user in g.user.following] + [g.user.id]
+        list_of_following_id = [
+            user.id for user in g.user.following] + [g.user.id]
 
         messages = (Message
                     .query
@@ -386,45 +383,34 @@ def homepage():
 ##############################################################################
 # like messages
 
-@app.post("/message/like/<int:message_id>/")
-def like_message(message_id):
+
+@app.post("/message/<int:message_id>/like")
+def toggle_like(message_id):
     """Get current message based on message.id and append to liked_messages
      depending on current user """
 
     form = g.csrf_form
 
     if not g.user or not form.validate_on_submit():
-
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
     message = Message.query.get_or_404(message_id)
-    g.user.liked_messages.append(message)
+
+    if message.user_id == g.user.id:
+        return abort(403)
+
+    if message in g.user.liked_messages:
+        g.user.liked_messages.remove(message)
+    else:
+        g.user.liked_messages.append(message)
+
     db.session.commit()
 
     return_url = request.form['url']
 
     return redirect(f"{return_url}")
 
-@app.post("/message/unlike/<int:message_id>/")
-def unlike_message(message_id):
-    """Get current message based on message.id and remove from liked_messages
-     depending on current user """
-
-    form = g.csrf_form
-
-    if not g.user or not form.validate_on_submit():
-
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
-
-    message = Message.query.get_or_404(message_id)
-    g.user.liked_messages.remove(message)
-    db.session.commit()
-
-    return_url = request.form['url']
-
-    return redirect(f"{return_url}")
 
 @app.get('/users/<int:user_id>/liked_messages')
 def show_liked_messages(user_id):
@@ -437,6 +423,13 @@ def show_liked_messages(user_id):
     user = User.query.get_or_404(user_id)
     return render_template('users/liked_messages.html', user=user)
 
+@app.errorhandler(404)
+def page_not_found(e):
+    """404 NOT FOUND page."""
+
+    return render_template('404.html'), 404
+
+
 @app.after_request
 def add_header(response):
     """Add non-caching headers on every request."""
@@ -444,4 +437,3 @@ def add_header(response):
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
     response.cache_control.no_store = True
     return response
-
