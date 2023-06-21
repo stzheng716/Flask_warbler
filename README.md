@@ -51,7 +51,7 @@
     * Mac users, port 5000 might be taken by another application to run on another port use the command below
     * ```$ flask run -p 5001```
 
-6. View application by going to http://localhost:5000 on your browser
+6. View application by going to http://localhost:5000 or http://localhost:5001 on your browser
 
 
 
