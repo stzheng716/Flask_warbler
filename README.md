@@ -4,6 +4,7 @@
 
 ## Preview:
 
+* ![preview img](/warblerpreview.jpg)
 * [Live Demo](https://stzheng716-warbler.onrender.com/signup)
     * Demo user:
     * Username: tuckerdiane
@@ -53,6 +54,15 @@
 
 6. View application by going to http://localhost:5000 on your browser
 
+## Run test:
+
+1. Create the test database
+* ```(venv) $ psql``
+* ```CREATE DATABASE warbler-test;```
+2. Run tests:
+
+* test all: ```python3 -m unittest```
+* test specific files: ```python3 -m unittest "test_file_name"```
 
 
 
