@@ -4,7 +4,7 @@
 
 ## Preview:
 
-* ![preview img](/warblerpreview.jpg)
+* ![preview img](/warblerpreview.png)
 * [Live Demo](https://stzheng716-warbler.onrender.com/signup)
     * Demo user:
     * Username: tuckerdiane
