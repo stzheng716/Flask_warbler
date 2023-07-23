@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from flask import Flask, render_template, request, flash, redirect, session, g, abort
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
+from flask_cors import CORS
 
 from forms import UserAddForm, LoginForm, MessageForm, CSRFProtectForm, UserEditform
 from models import db, connect_db, User, Message
@@ -13,6 +14,7 @@ load_dotenv()
 CURR_USER_KEY = "curr_user"
 
 app = Flask(__name__)
+CORS(app)
 
 database_url = os.environ['DATABASE_URL']
 database_url = database_url.replace('postgres://', 'postgresql://')
