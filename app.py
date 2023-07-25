@@ -11,7 +11,7 @@ from models import db, connect_db, User, Message
 
 load_dotenv()
 
-CURR_USER_KEY = "curr_user"
+CURR_USER_KEY_WARBLER = "curr_user_warbler"
 
 app = Flask(__name__)
 CORS(app)
@@ -36,8 +36,8 @@ connect_db(app)
 def add_user_to_g():
     """If we're logged in, add curr user to Flask global."""
 
-    if CURR_USER_KEY in session:
-        g.user = User.query.get(session[CURR_USER_KEY])
+    if CURR_USER_KEY_WARBLER in session:
+        g.user = User.query.get(session[CURR_USER_KEY_WARBLER])
     else:
         g.user = None
 
@@ -52,14 +52,14 @@ def provide_CSRF_protection():
 def do_login(user):
     """Log in user."""
 
-    session[CURR_USER_KEY] = user.id
+    session[CURR_USER_KEY_WARBLER] = user.id
 
 
 def do_logout():
     """Log out user."""
 
-    if CURR_USER_KEY in session:
-        del session[CURR_USER_KEY]
+    if CURR_USER_KEY_WARBLER in session:
+        del session[CURR_USER_KEY_WARBLER]
         flash("Logged out")
 
 
@@ -255,8 +255,7 @@ def profile():
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-    user = g.user
-    form = UserEditform(obj=user)
+    form = UserEditform(obj=g.user)
 
     if form.validate_on_submit():
         result = g.user.authenticate(g.user.username, form.password.data)
@@ -274,7 +273,7 @@ def profile():
 
         flash("Please enter correct password to submit updates.", "danger")
 
-    return render_template("users/edit.html", form=form, user_id=user.id)
+    return render_template("users/edit.html", form=form, user_id=g.user.id)
 
 
 @app.post('/users/delete')
